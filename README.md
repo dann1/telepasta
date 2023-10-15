@@ -22,6 +22,12 @@ Setup a cronjob to get a daily execution, at 7am.
 crontab -e
 ```
 
+## Install
+
+```bash
+pip install bs4 requests python-telegram-bot
+```
+
 Assuming you intalled the bot at `/opt/CurrencyScrapper` add the following line.
 
 ```text

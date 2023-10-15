@@ -26,6 +26,8 @@ async def main():
             data = centro_cambiario.show_deals()
         else:
             data = centro_cambiario.mostrar_ofertas()
+    else:
+        data = centro_cambiario.mostrar_ofertas()
 
     async with bot:
         await bot.send_message(text=data, chat_id=CHAT_ID)
