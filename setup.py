@@ -8,7 +8,8 @@ setup(
     install_requires=[
         'bs4',
         'requests',
-        'python-telegram-bot'
+        'python-telegram-bot',
+        'pyyaml'
     ],
     entry_points={
         'console_scripts': [

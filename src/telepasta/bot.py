@@ -1,35 +1,44 @@
 #!/usr/bin/env python
 
-import sys
+import os
 import asyncio
+import yaml
 import telegram
 
 from . import centro_cambiario
+from . import exchangerate_api
 
-if sys.argv.__len__() < 2:
-    print("Missing bot TOKEN argument", file=sys.stderr)
-    sys.exit(1)
-elif sys.argv.__len__() < 3:
-    print("Missing chat ID argument", file=sys.stderr)
-    sys.exit(1)
+def load_conf():
+    conf_file = os.path.expanduser("~/.telepasta")
 
-
-TOKEN = sys.argv[1]
-CHAT_ID = sys.argv[2]
+    with open(conf_file, 'r') as stream:
+        try:
+            conf = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    return conf
 
 async def run_bot():
-    bot = telegram.Bot(TOKEN)
+    CONF = load_conf()
+    bot = telegram.Bot(CONF['telegram']['bot_token'])
 
-    if sys.argv.__len__() > 3:
-        if sys.argv[3] != 'spa':
-            data = centro_cambiario.show_deals()
-        else:
-            data = centro_cambiario.mostrar_ofertas()
+    currencies_desired = centro_cambiario.CURRENCIES
+    currency_ref = centro_cambiario.CURRENCY
+    rates_ref_key = CONF['providers']['exchange_rate_api']['key']
+
+    messages = []
+
+    if CONF['lang'] == 'spa':
+        messages.append(exchangerate_api.mostrar_tasas(currency_ref, currencies_desired, rates_ref_key))
+        messages.append(centro_cambiario.mostrar_ofertas())
     else:
-        data = centro_cambiario.mostrar_ofertas()
+        messages.append(exchangerate_api.show_rates(currency_ref, currencies_desired, rates_ref_key))
+        messages.append(centro_cambiario.show_deals())
 
-    async with bot:
-        await bot.send_message(text=data, chat_id=CHAT_ID)
+
+    for message in messages:
+        async with bot:
+            await bot.send_message(text=message, chat_id=CONF['telegram']['chat_id'])
 
 def run_bot_wrapper():
     'python kekw'

@@ -1,16 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 
-
+CURRENCY = 'MXN'
 CURRENCIES = ['USD', 'EUR', 'CAD', 'GBP']
 SITE = "https://www.efectivodivisas.com.mx/index.php"
+NAME = 'Centro Cambiario Efectivo'
 
 
 def show_deals():
-    return f"Centro Cambiario Efectivo exchange rates at {SITE} as of now:\n{to_text_message(scrap(), 'eng')}"
+    return f"{NAME} exchange rates at {SITE} as of now:\n{to_text_message(scrap(), 'eng')}"
 
 def mostrar_ofertas():
-    return f"Tasas de cambio del Centro Cambiario Efectivo en {SITE} ahora:\n{to_text_message(scrap())}"
+    return f"Tasas de cambio de {NAME} en {SITE} ahora:\n{to_text_message(scrap())}"
 
 def scrap():
     response = requests.get(SITE)
@@ -67,10 +68,10 @@ def to_text_message(scrap_data, lang='spa'):
 
 
 def _show_deals_static():
-    return f"Centro Cambiario Efectivo exchange rates at {SITE} as of now:\n{to_text_message(scrap(), 'eng')}"
+    return f"{NAME} exchange rates at {SITE} as of now:\n{to_text_message(scrap(), 'eng')}"
 
 def _mostrar_ofertas_static():
-    return f"Tasas de cambio del Centro Cambiario Efectivo en {SITE}:\n{to_text_message(_data_15102023)}"
+    return f"Tasas de cambio del {NAME} en {SITE}:\n{to_text_message(_data_15102023)}"
 
 _data_15102023 = {
     "USD": {"Buy": 17.35, "Sell": 17.55},
