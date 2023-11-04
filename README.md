@@ -84,5 +84,4 @@ Then add the following line
 ## TODO
 
 - `/rates` and `/tasas` command to get current rates
-- Google diff: compare rates vs google rate
 - Daily diff: compare now vs before, requires tmpfile with before value

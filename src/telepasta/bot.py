@@ -31,9 +31,11 @@ async def run_bot():
     if CONF['lang'] == 'spa':
         messages.append(exchangerate_api.mostrar_tasas(currency_ref, currencies_desired, rates_ref_key))
         messages.append(centro_cambiario.mostrar_ofertas())
+        messages.append(exchangerate_api.mostrar_diferencia(centro_cambiario.CURRENCY, centro_cambiario.now_rates))
     else:
         messages.append(exchangerate_api.show_rates(currency_ref, currencies_desired, rates_ref_key))
         messages.append(centro_cambiario.show_deals())
+        messages.append(exchangerate_api.show_diff(centro_cambiario.CURRENCY, centro_cambiario.now_rates))
 
 
     for message in messages:

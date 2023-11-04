@@ -10,8 +10,10 @@ NAME = 'Centro Cambiario Efectivo'
 def show_deals():
     return f"{NAME} exchange rates at {SITE} as of now:\n{to_text_message(scrap(), 'eng')}"
 
+
 def mostrar_ofertas():
     return f"Tasas de cambio de {NAME} en {SITE} ahora:\n{to_text_message(scrap())}"
+
 
 def scrap():
     response = requests.get(SITE)
@@ -31,6 +33,8 @@ def scrap():
 
             i += 2
 
+        global now_rates
+        now_rates = dict
         return dict
     else:
         return {response.status_code: response.json()}
@@ -70,8 +74,10 @@ def to_text_message(scrap_data, lang='spa'):
 def _show_deals_static():
     return f"{NAME} exchange rates at {SITE} as of now:\n{to_text_message(scrap(), 'eng')}"
 
+
 def _mostrar_ofertas_static():
     return f"Tasas de cambio del {NAME} en {SITE}:\n{to_text_message(_data_15102023)}"
+
 
 _data_15102023 = {
     "USD": {"Buy": 17.35, "Sell": 17.55},
