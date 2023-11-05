@@ -38,6 +38,7 @@ async def run_bot():
         messages.append(centro_cambiario.show_deals())
         messages.append(exchangerate_api.show_diff(centro_cambiario.CURRENCY, centro_cambiario.now_rates))
 
+    centro_cambiario.save_cache_rates(centro_cambiario.now_rates)
 
     for message in messages:
         async with bot:

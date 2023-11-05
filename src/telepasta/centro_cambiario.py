@@ -10,6 +10,7 @@ SITE = "https://www.efectivodivisas.com.mx/index.php"
 NAME = 'Centro Cambiario Efectivo'
 CACHE_PATH = f"/tmp/.{'_'.join(NAME.split(' '))}"
 
+
 def show_deals():
     return f"{NAME} exchange rates at {SITE}:\n{to_text_message(scrap(), 'eng')}"
 
@@ -17,10 +18,12 @@ def show_deals():
 def mostrar_ofertas():
     return f"Tasas de cambio de {NAME} en {SITE}:\n{to_text_message(scrap())}"
 
+
 def mostrar_cambio():
     deltas = diff_previous()
     message = to_text_message(deltas, lang='spa')
     return f"Cambio de tasas de {NAME} respecto al análisis anterior:\n{message}"
+
 
 def show_change():
     deltas = diff_previous()
@@ -53,12 +56,13 @@ def scrap():
 
         global now_rates
         now_rates = dict
+
         return dict
     else:
         return {response.status_code: response.json()}
 
 
-def diff_previous(rates_current = None, rates_previous = None):
+def diff_previous(rates_current=None, rates_previous=None):
     if not rates_current:
         if 'now_rates' in globals():
             rates_current = now_rates
@@ -73,12 +77,11 @@ def diff_previous(rates_current = None, rates_previous = None):
         if os.path.exists(CACHE_PATH):
             rates_cached = load_cached_rates()
             if rates_cached:
-                pass
-            return diff(rates_current, rates_cached)
+                return diff(rates_current, rates_cached)
         else:
             err = "No previous value to compare provided nor cached"
             sys.stderr.write(err)
-            return rates_current
+        return {}
 
 
 def diff(scrap_data_new, scrap_data_old):
