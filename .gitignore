@@ -161,3 +161,4 @@ cython_debug/
 
 .telepasta.yaml
 .vscode
+bot_test.py

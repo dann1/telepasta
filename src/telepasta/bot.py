@@ -32,6 +32,7 @@ async def run_bot():
         messages.append(exchangerate_api.mostrar_tasas(currency_ref, currencies_desired, rates_ref_key))
         messages.append(centro_cambiario.mostrar_ofertas())
         messages.append(exchangerate_api.mostrar_diferencia(centro_cambiario.CURRENCY, centro_cambiario.now_rates))
+        messages.append(centro_cambiario.mostrar_cambio())
     else:
         messages.append(exchangerate_api.show_rates(currency_ref, currencies_desired, rates_ref_key))
         messages.append(centro_cambiario.show_deals())
@@ -51,3 +52,4 @@ def run_bot_wrapper():
 
 if __name__ == '__main__':
     run_bot_wrapper()
+

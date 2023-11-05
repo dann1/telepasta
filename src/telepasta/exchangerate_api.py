@@ -18,15 +18,14 @@ def mostrar_tasas(currency_ref, currencies_desired, api_key, invert=True):
 
 def show_diff(currency_ref, rates_provider):
     deltas = diff(currency_ref, rates_provider)
-    message = diff_to_text_message(deltas, lang = 'eng')
-    return f"Provider rates difference:\n{message}"
+    message = diff_to_text_message(deltas, lang='eng')
+    return f"Clean Rate difference:\n{message}"
 
 
 def mostrar_diferencia(currency_ref, rates_provider):
     deltas = diff(currency_ref, rates_provider)
     message = diff_to_text_message(deltas, lang='spa')
-    return f"Diferencia de tasas del proveedor:\n{message}"
-
+    return f"Diferencia vs Tasa Limpia:\n{message}"
 
 def currency_rates(api_key, currency):
     """Returns every exchange rate for a given currency
@@ -48,7 +47,18 @@ def currency_rates(api_key, currency):
         return {response.status_code: 'Unable to fetch rates'}
 
 
-def currency_rates_filtered(currency_reference, rates_currency_reference, currencies, invert):
+def currency_rates_filtered(currency_reference, rates_all, currencies, invert):
+    """Filters SITE rates for a given reference currency
+
+    Args:
+        currency_reference (String): Currency to get rates to
+        rates_all (dict): Every exchange rate from SITE
+        currencies (_type_): What currencies to get the rate from
+        invert (_type_): from currency reference to currencies or backwards
+
+    Returns:
+        _type_: _description_
+    """
     rates_filtered = {
         currency_reference: {}
     }
@@ -56,10 +66,10 @@ def currency_rates_filtered(currency_reference, rates_currency_reference, curren
     for currency in currencies:
         if invert:
             rates_filtered[currency_reference][currency] = round(
-                1/rates_currency_reference[currency], 2)
+                1/rates_all[currency], 2)
         else:
             rates_filtered[currency_reference][currency] = round(
-                rates_currency_reference[currency], 2)
+                rates_all[currency], 2)
 
     global now_rates
     now_rates = rates_filtered
@@ -90,6 +100,7 @@ def diff(currency_ref, rates_provider):
 
     return deltas
 
+
 def diff_to_text_message(scrap_data, lang='spa'):
     rates_spaced = ''
 
@@ -103,3 +114,8 @@ def diff_to_text_message(scrap_data, lang='spa'):
             rates_spaced += f"{currency}: Buy -> {buy_rate}  Sell -> {sell_rate}\n"
 
     return rates_spaced
+
+# example scrap data
+_data_mxn_04112023 = {'MXN': {
+    'USD': 17.46, 'EUR': 18.74, 'CAD': 12.77, 'GBP': 21.6
+}}
