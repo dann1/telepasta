@@ -1,6 +1,8 @@
 # telepasta
 
-A Currency Scrapper Telegram Bot
+A Currency Scrapper Telegram Bot. Performs an an analysis comparing exchange rate differneces between providers.
+
+![Alt text](image.png)
 
 Providers
 
@@ -83,7 +85,6 @@ Then add the following line
 
 ## TODO
 
-- Daily diff: compare now vs before, requires tmpfile with before value
 - Implement OOP for
   - References: The currency exchange clean rates
     - currency reference will be loaded from config

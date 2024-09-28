@@ -161,4 +161,5 @@ cython_debug/
 
 .telepasta.yaml
 .vscode
+.DS_Store
 bot_test.py
