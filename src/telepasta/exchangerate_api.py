@@ -1,7 +1,10 @@
 import requests
+from requests.exceptions import RequestException
 
 SITE = 'https://app.exchangerate-api.com'
 NAME = 'ExchangeRate-API'
+TIMEOUT = 2
+MAX_RETRIES = 3
 
 
 def show_rates(currency_ref, currencies_desired, api_key, invert=True):
@@ -39,12 +42,14 @@ def currency_rates(api_key, currency):
     """
 
     endpoint = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/{currency}"
-    response = requests.get(endpoint)
 
-    if response.status_code == 200:
-        return response.json()['conversion_rates']
-    else:
-        return {response.status_code: 'Unable to fetch rates'}
+    for i in range(MAX_RETRIES):
+        response = requests.get(endpoint, timeout=TIMEOUT)
+
+        if response.status_code == 200:
+            return response.json()['conversion_rates']
+
+    return {response.status_code: 'Unable to fetch rates'}
 
 
 def currency_rates_filtered(currency_reference, rates_all, currencies, invert):
