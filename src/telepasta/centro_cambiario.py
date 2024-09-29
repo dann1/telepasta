@@ -3,12 +3,17 @@ from bs4 import BeautifulSoup
 import json
 import os
 import sys
+import time
+from requests.exceptions import RequestException
 
 CURRENCY = 'MXN'
 CURRENCIES = ['USD', 'EUR', 'CAD', 'GBP']
 SITE = "https://www.efectivodivisas.com.mx/index.php"
 NAME = 'Centro Cambiario Efectivo'
 CACHE_PATH = f"/tmp/.{'_'.join(NAME.split(' '))}"
+MAX_RETRIES = 3
+TIMEOUT = 2
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
 
 
 def show_deals():
@@ -32,35 +37,71 @@ def show_change():
 
 
 def scrap():
-    """Craps exchange rate information at SITE
+    """Scrapes exchange rate information from SITE
 
     Returns:
-        dict: Buy and Sell rates for each of the CURRENCIES based on the CURRENCY
+        dict: Buy and Sell rates for each of the CURRENCIES, or error information
     """
-    response = requests.get(SITE)
-    if response.status_code == 200:
-        # Extracting currency values based on the <font> tag with class 'precios'
-        soup = BeautifulSoup(response.content, 'html.parser')
-        exchange_rates = soup.find_all('font', class_='precios')
+    headers = {
+        'User-Agent': USER_AGENT,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Cache-Control': 'max-age=0',
+    }
 
-        dict = {}
-        i = 0
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = requests.get(SITE, headers=headers, timeout=TIMEOUT)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
 
-        for currency in CURRENCIES:
-            dict[currency] = {}
+            soup = BeautifulSoup(response.content, 'html.parser')
 
-            dict[currency]['Buy'] = float(exchange_rates[i].text.strip())
-            dict[currency]['Sell'] = float(exchange_rates[i+1].text.strip())
+            exchange_rates = {}
 
-            i += 2
+            for currency in CURRENCIES:
+                exchange_rates[currency] = {}
 
-        global now_rates
-        now_rates = dict
+                # Find the row containing the currency
+                currency_row = soup.find('img', alt=currency)
+                if currency_row:
+                    row = currency_row.find_parent('tr')
 
-        return dict
-    else:
-        return {response.status_code: response.json()}
+                    # Extract buy and sell rates
+                    buy_rate = row.find_all('h1')[0].text.strip()
+                    sell_rate = row.find_all('h1')[1].text.strip()
 
+                    # Remove '$' and convert to float
+                    exchange_rates[currency]['Buy'] = float(
+                        buy_rate.replace('$', '').replace(',', ''))
+                    exchange_rates[currency]['Sell'] = float(
+                        sell_rate.replace('$', '').replace(',', ''))
+                else:
+                    print(f"Warning: Could not find data for {currency}")
+
+            global now_rates
+            now_rates = exchange_rates
+
+            return exchange_rates
+
+        except RequestException as e:
+            print(f"Attempt {attempt + 1} failed: {str(e)}")
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(2)  # Wait for 2 seconds before retrying
+            else:
+                return {"error": f"Failed to retrieve data after {MAX_RETRIES} attempts: {str(e)}"}
+
+        except Exception as e:
+            return {"error": f"An unexpected error occurred: {str(e)}"}
+
+    return {"error": "Failed to retrieve data after maximum retries"}
 
 def diff_previous(rates_current=None, rates_previous=None):
     if not rates_current:
